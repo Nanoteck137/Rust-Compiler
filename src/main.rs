@@ -48,16 +48,25 @@ impl Tokenizer {
     }
 }
 
+fn remove_whitespace(tokenizer: &mut Tokenizer) {
+    //TODO: Remove comments
+    while tokenizer.peek_char().is_whitespace() {
+        tokenizer.skip();
+    }
+}
+
 //TODO: Move this in to the tokenizer impl
-fn get_token(tokenizer: &mut Tokenizer) -> Option<Token> {
+fn get_token(tokenizer: &mut Tokenizer) -> Token {
+    remove_whitespace(tokenizer);
+    
     let mut c = tokenizer.next_char();
     
     return match c {
-        '\0' => Some(Token::EOF),
-        '+' => Some(Token::Plus),
-        '-' => Some(Token::Minus),
-        '*' => Some(Token::Multiply),
-        '/' => Some(Token::Divide),
+        '\0' => Token::EOF,
+        '+'  => Token::Plus,
+        '-'  => Token::Minus,
+        '*'  => Token::Multiply,
+        '/'  => Token::Divide,
         _ => {
             if c.is_alphabetic() {
                 let mut ident = String::new();
@@ -68,11 +77,19 @@ fn get_token(tokenizer: &mut Tokenizer) -> Option<Token> {
                     ident.push(c);
                 }
                 
-                Some(Token::Identifier(ident))
+                Token::Identifier(ident)
             }
             else if c.is_numeric() {
-                println!("Found Digit");
-                Some(Token::Number(12.0))
+                let mut num: f64 = 0.0;
+                num += c.to_digit(10).unwrap() as f64;
+                
+                while tokenizer.peek_char().is_alphanumeric() {
+                    c = tokenizer.next_char();
+                    num *= 10.0;
+                    num += c.to_digit(10).unwrap() as f64;
+                }                
+                
+                Token::Number(num)
             } else {
                 panic!("Unknown character");
             }
@@ -80,12 +97,23 @@ fn get_token(tokenizer: &mut Tokenizer) -> Option<Token> {
     }
 }
 
-fn main() {
-    let mut tokenizer = Tokenizer::new(String::from("HH+"));
-
-    let mut t = get_token(&mut tokenizer);
-    println!("Token: {:?}", t);
+fn get_all_tokens(tokenizer: &mut Tokenizer) -> Vec<Token> {
+    let mut res = Vec::new();
     
-    t = get_token(&mut tokenizer);
-    println!("Token: {:?}", t);
+    let mut token = get_token(tokenizer);
+    while token != Token::Unknown && token != Token::EOF {
+        res.push(token);
+        token = get_token(tokenizer);
+    }
+    
+    res
+}
+
+fn main() {
+    let mut tokenizer = Tokenizer::new(String::from("1+2332"));
+
+    let tokens = get_all_tokens(&mut tokenizer);
+    for token in tokens {
+        println!("Token: {:?}", token);
+    }
 }
