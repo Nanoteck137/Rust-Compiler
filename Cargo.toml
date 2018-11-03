@@ -1,0 +1,6 @@
+[package]
+name = "rust_compiler"
+version = "0.1.0"
+authors = ["Nanoteck137 <patrik.millvik@gmail.com>"]
+
+[dependencies]
