@@ -88,7 +88,4 @@ fn main() {
     
     t = get_token(&mut tokenizer);
     println!("Token: {:?}", t);
-    
-    t = get_token(&mut tokenizer);
-    println!("Token: {:?}", t);
 }
